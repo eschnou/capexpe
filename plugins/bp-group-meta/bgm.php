@@ -235,12 +235,17 @@ Class groups_metadata {
         );
         $bpm_querystring = wp_parse_args( $querystring, $defaults );
 
-        /* Prepare the meta-query using extras arguments from the AJAX request */
+        /* Prepare the meta-query using extras arguments from the AJAX request
+         if they are present in the POST data. */
+        if (!isset($_POST['extras'])) {
+          return $querystring;
+        }
+
         $extras = wp_parse_args($_POST['extras']);
         $meta_query = [];
 
         /* Check if a date was selected */
-        if($extras['year'] && preg_match('/^[0-9]+$/', $extras['year'])){
+        if(isset($extras['year']) && preg_match('/^[0-9]+$/', $extras['year'])){
           array_push($meta_query, array(
             'key' => 'year',
             'value' => intval($extras['year']),
@@ -251,7 +256,7 @@ Class groups_metadata {
         }
 
         /* Check if a category was selected */
-        if ($extras['category'] && strpos($extras['category'], 'Toutes') === false) {
+        if (isset($extras['category']) && strpos($extras['category'], 'Toutes') === false) {
           array_push($meta_query, array(
             'key' => 'category',
             'value' => sanitize_text_field($extras['category']),
